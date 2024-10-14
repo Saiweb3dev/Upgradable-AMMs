@@ -2,7 +2,10 @@
   "name": "hardhat-project",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "hardhat": "^2.22.13"
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.13",
+    "hardhat-gas-reporter": "^2.2.1",
+    "solidity-coverage": "^0.8.13"
   },
   "dependencies": {
     "@uniswap/v3-core": "^1.0.1",
