@@ -68,8 +68,6 @@ contract EnhancedUniswapV3Pool is ReentrancyGuard {
         token1 = IERC20(_token1);
         fee = _fee;
         tickSpacing = _tickSpacing;
-        sqrtPriceX96 = _sqrtPriceX96;
-        tick = TickMath.getTickAtSqrtRatio(_sqrtPriceX96);
     }
 
     /**
@@ -223,4 +221,10 @@ contract EnhancedUniswapV3Pool is ReentrancyGuard {
             2**96
         );
     }
+    function setInitialPrice(uint160 _sqrtPriceX96) external {
+    require(msg.sender == factory, "Only factory can set initial price");
+    require(sqrtPriceX96 == 0, "Price already set");
+    sqrtPriceX96 = _sqrtPriceX96;
+    tick = TickMath.getTickAtSqrtRatio(_sqrtPriceX96);
+}
 }
