@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.6;
+pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -21,7 +21,7 @@ contract Token is ERC20, Ownable, Pausable {
     /**
      * @dev Constructor that gives msg.sender all of existing tokens.
      */
-    constructor(string memory name, string memory symbol, uint8 decimalsValue, uint256 initialSupply) ERC20(name, symbol) {
+    constructor(string memory name, string memory symbol, uint8 decimalsValue, uint256 initialSupply) ERC20(name, symbol) Ownable(msg.sender) {
         require(initialSupply <= MAX_SUPPLY, "Initial supply exceeds max supply");
         _decimals = decimalsValue;
         _mint(msg.sender, initialSupply);
