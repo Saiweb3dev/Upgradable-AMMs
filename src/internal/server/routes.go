@@ -1,75 +1,54 @@
 package server
 
 import (
-	"net/http"
-  
-	"log"
-	"fmt"
-	"time"
-  
+    "net/http"
 
-	"github.com/gin-gonic/gin"
-
-  
-"github.com/coder/websocket"
+    "github.com/gin-gonic/gin"
 
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
-	r := gin.Default()
+    r := gin.Default()
 
-	r.GET("/", s.HelloWorldHandler)
-  
-	r.GET("/health", s.healthHandler)
-  
-  
-	r.GET("/websocket", s.websocketHandler)
-  
 
-  
+    // Add new routes for transactions
+    r.GET("/transactions/account/:address", s.GetTransactionsByAccount)
+    r.GET("/transactions/token/:address", s.GetTransactionsByToken)
 
-	return r
+    return r
 }
 
-func (s *Server) HelloWorldHandler(c *gin.Context) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
+// ... your existing handlers ...
 
-	c.JSON(http.StatusOK, resp)
+// Add new handlers
+func (s *Server) GetTransactionsByAccount(c *gin.Context) {
+    accountAddress := c.Param("address")
+    if accountAddress == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "address is required"})
+        return
+    }
+
+    transactions, err := s.db.GetTransactionsByAccount(c.Request.Context(), accountAddress)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, transactions)
 }
 
+func (s *Server) GetTransactionsByToken(c *gin.Context) {
+    tokenAddress := c.Param("address")
+    if tokenAddress == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "address is required"})
+        return
+    }
 
-func (s *Server) healthHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, s.db.Health())
+    transactions, err := s.db.GetTransactionsByToken(c.Request.Context(), tokenAddress)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, transactions)
 }
-
-
-
-
-func (s *Server) websocketHandler(c *gin.Context) {
-	w := c.Writer
-	r := c.Request
-	socket, err := websocket.Accept(w, r, nil)
-
-	if err != nil {
-		log.Printf("could not open websocket: %v", err)
-		_, _ = w.Write([]byte("could not open websocket"))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	defer socket.Close(websocket.StatusGoingAway, "server closing websocket")
-
-	ctx := r.Context()
-	socketCtx := socket.CloseRead(ctx)
-
-	for {
-		payload := fmt.Sprintf("server timestamp: %d", time.Now().UnixNano())
-		err := socket.Write(socketCtx, websocket.MessageText, []byte(payload))
-		if err != nil {
-			break
-		}
-		time.Sleep(time.Second * 2)
-	}
-}
-
