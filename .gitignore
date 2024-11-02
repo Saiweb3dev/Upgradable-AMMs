@@ -5,6 +5,8 @@ task.txt
 # Hardhat files
 /cache
 /artifacts
+/deployments
+/logs
 
 # TypeChain files
 /typechain
