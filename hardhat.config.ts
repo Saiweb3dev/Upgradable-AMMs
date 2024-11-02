@@ -6,6 +6,7 @@ import "hardhat-gas-reporter";
 import "solidity-coverage";
 import * as dotenv from "dotenv";
 import '@openzeppelin/hardhat-upgrades';
+import "hardhat-deploy";
 
 dotenv.config();
 
